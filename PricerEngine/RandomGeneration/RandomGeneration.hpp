@@ -6,7 +6,7 @@ namespace generators{
     class RandomGeneration
     {        
         public:
-            virutal void get_one_gaussian_sample(PnlVect * const into) const = 0;
-            virutal ~RandomGeneration() {};
+            virtual void get_one_gaussian_sample(PnlVect * const into) const = 0;
+            virtual ~RandomGeneration() {};
     };
 }

@@ -11,9 +11,9 @@ namespace input_parsers
 		nlohmann::json json;
 	public:
 		int get_underlying_number() const final;
-		double get_maturity() const;
 		PnlVect * get_monitoringDates() const;
 		PnlVect * get_strikes() const;
+		PnlVect* get_volatility() const = 0;
 		CoreOptionInputParser(const nlohmann::json &j) : json(j)
 		{};
 		~CoreOptionInputParser() {};
