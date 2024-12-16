@@ -12,7 +12,7 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 # Find Protobuf installation
 # Must use the CONFIG mode
 block()
-    set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+   set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
     find_package(Protobuf REQUIRED)
 endblock()
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
