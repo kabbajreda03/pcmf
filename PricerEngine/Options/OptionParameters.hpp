@@ -18,8 +18,7 @@ namespace options {
 			underlying_number(0),
 			maturity(0),
 			monitoringDates(nullptr),
-			strikes(nullptr),
-
+			strikes(nullptr)
 		{};
 
 		OptionParameters(const input_parsers::OptionInputParser &input_parser) 

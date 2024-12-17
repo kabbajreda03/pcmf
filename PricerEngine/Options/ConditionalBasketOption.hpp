@@ -15,7 +15,7 @@ namespace options {
 			Option(params)
 		{};
 
-		PnlVect* get_payoff(const PnlMat * const underlying_paths) const;
+		PnlVect* get_payoff(const PnlMat * const underlying_paths);
 	};
 
 }
