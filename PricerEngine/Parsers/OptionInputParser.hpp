@@ -11,7 +11,7 @@ namespace input_parsers
 		virtual double get_maturity() const = 0;
 		virtual PnlVect * get_monitoringDates() const = 0;
 		virtual PnlVect * get_strikes() const = 0;
-		virtual ~BarrierOptionInputParser() {};
+		virtual ~OptionInputParser() {};
 	};
 
 }

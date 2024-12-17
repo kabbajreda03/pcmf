@@ -13,7 +13,7 @@ namespace models
 	{
 
 	public:
-        BlackScholesModel(BlackScholesModelParameters& params, const RandomGeneration & rng);
+        BlackScholesModel(BlackScholesModelParameters& params, const generators::RandomGeneration & rng);
         int underlying_number() {return parameters.underlying_number;};
         PnlMat* cholesky_lines() {return parameters.cholesky_lines;};
         double interest_rate() {return parameters.interest_rate;};
@@ -22,9 +22,13 @@ namespace models
         int sample_number() {return parameters.sample_number;};
         double fdStep() {return parameters.fdStep;};
 		PnlVect* get_spots(){ return parameters.spots;};
+		double get_maturity(){ return final_simulation_date_;}
 
 		const PnlMat* const simulate_asset_paths_unsafe(const double from_time, const PnlMat * const past_values);
 		const PnlMat* const simulate_asset_paths_from_start(const PnlVect * const spot);
+
+		void shift_asset(PnlMat *path, PnlMat *shifted, double t,double h, int d);
+
         ~BlackScholesModel();
 	private:
 

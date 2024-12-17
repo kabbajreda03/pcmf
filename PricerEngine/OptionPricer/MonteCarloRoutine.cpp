@@ -30,3 +30,50 @@ void MonteCarloRoutine::price(double &price, double &confidence_interval) const
 	double variance = runningSquaredSum / sample_number - price * price;
 	confidence_interval = 1.96 * sqrt(variance / sample_number);
 }
+
+void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past, double t){
+    
+    PnlVect* payoffs;
+    models::BlackScholesModel* derived_model = dynamic_cast<models::BlackScholesModel*>(&underlying_model);
+
+    double interest_rate = derived_model->interest_rate();
+    const PnlVect* monitoring_dates = option.get_monitoringDates();
+	PnlVect* times_to_monitoring = pnl_vect_create_from_scalar(option.get_nb_monitoringDates(), t);
+    pnl_vect_minus_vect(times_to_monitoring, monitoring_dates);
+    for (int i = 0; i < option.get_nb_monitoringDates(); ++i) {
+    	double x = GET(times_to_monitoring, i);
+        LET(times_to_monitoring, i) = std::exp(-interest_rate * x);
+    }
+    double diff;
+    double fdstep =  derived_model->fdStep();
+    PnlVect *sum_squares = pnl_vect_create_from_zero(derived_model->underlying_number());
+    PnlMat *shifted = pnl_mat_create(sample_number, derived_model->underlying_number());
+    PnlMat *path = pnl_mat_create(sample_number, derived_model->underlying_number());
+    for(int i=0; i<sample_number; i++){
+		const PnlMat * const generated_path = get_generated_path();        
+		for(int d=0;d<derived_model->underlying_number();d++){
+            derived_model->shift_asset(path, shifted, t, fdstep, d);
+            payoffs = option.get_payoff(shifted);
+            diff = pnl_vect_scalar_prod(payoffs, times_to_monitoring);
+
+            derived_model->shift_asset(path,shifted, t, - fdstep, d);
+            payoffs = option.get_payoff(shifted);
+            diff -= pnl_vect_scalar_prod(payoffs, times_to_monitoring);
+            LET(deltas,d) = GET(deltas,d) + diff;
+            LET(sum_squares,d) = GET(sum_squares,d) + diff*diff;
+            
+        }
+    }
+
+    for(int d = 0; d<derived_model->underlying_number();d++){
+        double S_t = MGET(past, past->m-1, d);
+        double mean = GET(deltas,d)/(2.0*fdstep*sample_number);
+        double var = GET(sum_squares,d)/(4.0*fdstep*fdstep*sample_number)-mean*mean;
+        double discount = exp(-derived_model->interest_rate() * (derived_model->get_maturity()-t));
+        LET(deltas,d) = GET(deltas,d) * discount / (2.0* fdstep*sample_number*S_t);
+        LET(deltas_std,d) = sqrt(var)*discount/(S_t*sqrt(sample_number));
+    }
+    pnl_mat_free(&path);
+    pnl_mat_free(&shifted);
+    pnl_vect_free(&sum_squares);
+}

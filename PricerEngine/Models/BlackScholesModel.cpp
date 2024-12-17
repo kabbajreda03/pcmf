@@ -74,6 +74,14 @@ void BlackScholesModel::fill_remainder_of_generated_asset_paths(int from_line)
 	}
 }
 
+void BlackScholesModel::shift_asset(PnlMat *path, PnlMat *shifted, double t,double h, int d)
+{   
+    pnl_mat_clone(shifted,path);
+    int idx = (int) (t/timestep_);
+    for(int i=idx; i<shifted->m; i++){
+        MLET(shifted, i, d) = MGET(path, i, d)*(1+h);
+    }
+}
 
 BlackScholesModel::~BlackScholesModel()
 {

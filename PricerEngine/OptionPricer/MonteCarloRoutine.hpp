@@ -3,6 +3,7 @@
 #include "RandomGeneration.hpp"
 #include "UnderlyingModel.hpp"
 #include "Option.hpp"
+#include "BlackScholesModel.hpp"
 
 class MonteCarloRoutine
 {	
@@ -17,6 +18,7 @@ protected:
 	{}
 public:
 	void price(double &price, double &confidence_interval) const;
+	void delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past, double t);
 };
 
 ///////////////////////////

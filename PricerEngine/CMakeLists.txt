@@ -11,10 +11,23 @@ endif ()
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 # Find Protobuf installation
 # Must use the CONFIG mode
-block()
-   set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
-    find_package(Protobuf REQUIRED)
-endblock()
+# The block command was introduced in 3.25
+# block()
+#     set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+#     find_package(Protobuf REQUIRED CONFIG)
+# endblock()
+if (DEFINED CMAKE_FIND_PACKAGE_PREFER_CONFIG)
+    set(CMAKE_FIND_PACKAGE_PREFER_CONFIG_VALUE ${CMAKE_FIND_PACKAGE_PREFER_CONFIG})
+endif()
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+find_package(Protobuf REQUIRED CONFIG)
+unset(CMAKE_FIND_PACKAGE_PREFER_CONFIG)
+if (DEFINED CMAKE_FIND_PACKAGE_PREFER_CONFIG_VALUE)
+    set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ${CMAKE_FIND_PACKAGE_PREFER_CONFIG_VALUE})
+endif()
+
+
+# unset(CMAKE_FIND_PACKAGE_PREFER_CONFIG)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
@@ -49,6 +62,7 @@ add_custom_command(
     DEPENDS "${pricer_proto}"
 )
 
+
 # Find Pnl
 find_package(Pnl REQUIRED)
 set(LIBS ${LIBS} ${PNL_LIBRARIES})
@@ -56,6 +70,20 @@ include_directories(${PNL_INCLUDE_DIRS})
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_definitions(-DPNL_RANGE_CHECK_OFF)
 endif()
+
+include_directories(
+	Models 
+	Options 
+	Parsers 
+	RandomGeneration 
+	OptionPricer 
+)
+
+add_subdirectory(Models)
+add_subdirectory(Options)
+add_subdirectory(Parsers)
+add_subdirectory(RandomGeneration)
+add_subdirectory(OptionPricer)
 
 # Find nlohmann_json to parse json files
 # Add nlohmann_json::nlohmann_json to target_link_libraries
@@ -76,6 +104,8 @@ target_link_libraries(pricer_grpc_proto
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}
 )
+
+
 
 add_executable(pricing_server pricing_server.cpp pricer.cpp json_reader.cpp )
 target_link_libraries(pricing_server
