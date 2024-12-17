@@ -18,7 +18,7 @@ class Option
       parameters{params}
     {};
 
-    virtual double payoff(const PnlMat * const underlying_paths) const = 0;
+    virtual PnlVect* get_payoff(const PnlMat * const underlying_paths) const = 0;
 
 };
 }

@@ -2,13 +2,13 @@
 
 using namespace options;
 
-double ConditionalBasketOption::get_payoff(const PnlMat * const underlying_paths) const
+PnlVect * ConditionalBasketOption::get_payoff(const PnlMat * const underlying_paths) const
 {
-	double total_payoff = 0.0;
     int n_monitoring_dates = parameters.monitoringDates->size;
     int n_assets = underlying_paths->n;
-    double dt = GET(parameters.monitoringDates, n_monitoring_dates - 1) / (underlying_paths->m - 1);
-    
+    double dt = GET(parameters.monitoringDates, n_monitoring_dates - 1) / (underlying_paths->m);
+    PnlVect* payoffs = pnl_vect_create_from_zero(n_monitoring_dates);
+
     bool previous_payoffs_zero = true;
     
     for (int m = 0; m < n_monitoring_dates && previous_payoffs_zero; m++) {
@@ -24,12 +24,11 @@ double ConditionalBasketOption::get_payoff(const PnlMat * const underlying_paths
             
         double current_payoff = std::max(basket_value - current_strike, 0.0);
             
-        total_payoff += current_payoff;
-            
         if (current_payoff > 0.0) {
             previous_payoffs_zero = false;
+            LET(payoffs,m) = current_payoff;
         }
     }
     
-    return total_payoff;
+    return payoffs;
 }

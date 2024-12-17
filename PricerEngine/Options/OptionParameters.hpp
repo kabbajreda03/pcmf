@@ -13,7 +13,7 @@ namespace options {
 		double maturity;
 		PnlVect * strikes;
         PnlVect * monitoringDates;
-
+		
 		OptionParameters() :
 			underlying_number(0),
 			maturity(0),

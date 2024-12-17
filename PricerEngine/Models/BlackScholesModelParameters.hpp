@@ -16,6 +16,7 @@ namespace models {
 		int nb_monitoring_dates;
 		int sample_number;
         double fdStep;
+		PnlVect * spots;
 
 		BlackScholesModelParameters() :
 			underlying_number(0),
@@ -24,10 +25,11 @@ namespace models {
 			monitoringDates(nullptr),
 			nb_monitoring_dates(0),
 			sample_number(0),
-			fdStep(0)
+			fdStep(0),
+			spots(nullptr)
 		{};
 
-		BlackScholesModelParameters(const input_parsers::BlackScholesModelInputParser &input_parser) 
+		BlackScholesModelParameters(const input_parsers::BlackScholesModelInputParser &input_parser, PnlVect * spots_) 
 		{
 			underlying_number = input_parser.get_underlying_number();
             cholesky_lines = input_parser.get_cholesky_lines();
@@ -36,6 +38,7 @@ namespace models {
 			sample_number = input_parser.get_sample_number();
 			fdStep = input_parser.get_fdStep();
 			nb_monitoring_dates = monitoringDates->size;
+			spots = pnl_vect_copy(spots_);
 		};
     };
 }
