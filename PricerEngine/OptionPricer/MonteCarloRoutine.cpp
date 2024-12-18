@@ -29,7 +29,7 @@ void MonteCarloRoutine::price(double &price, double &confidence_interval) const
 	confidence_interval = sqrt(variance / sample_number);
 }
 
-void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past, double t){
+void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, const PnlMat *past, double t){
     
     PnlVect* payoffs;
     models::BlackScholesModel* derived_model = dynamic_cast<models::BlackScholesModel*>(&underlying_model);
@@ -42,19 +42,17 @@ void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past
     	double x = GET(times_to_monitoring, i);
         LET(times_to_monitoring, i) = std::exp(interest_rate * x);
     }
-    double diff;
     double fdstep =  derived_model->fdStep();
     PnlVect *sum_squares = pnl_vect_create_from_zero(derived_model->underlying_number());
-    PnlMat *shifted = pnl_mat_create(sample_number, derived_model->underlying_number());
-    PnlMat *path = pnl_mat_create(sample_number, derived_model->underlying_number());
+    PnlMat *shifted = pnl_mat_create(monitoring_dates->size + 1, derived_model->underlying_number());
     for(int i=0; i<sample_number; i++){
 		const PnlMat * const generated_path = get_generated_path();        
 		for(int d=0;d<derived_model->underlying_number();d++){
-            derived_model->shift_asset(path, shifted, t, fdstep, d);
+            
+            derived_model->shift_asset(generated_path, shifted, t, fdstep, d);
             payoffs = option.get_payoff(shifted);
-            diff = pnl_vect_scalar_prod(payoffs, times_to_monitoring);
-
-            derived_model->shift_asset(path,shifted, t, - fdstep, d);
+            double diff = pnl_vect_scalar_prod(payoffs, times_to_monitoring);
+            derived_model->shift_asset(generated_path,shifted, t, -fdstep, d);
             payoffs = option.get_payoff(shifted);
             diff -= pnl_vect_scalar_prod(payoffs, times_to_monitoring);
             LET(deltas,d) = GET(deltas,d) + diff;
@@ -62,7 +60,6 @@ void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past
             
         }
     }
-
     for(int d = 0; d<derived_model->underlying_number();d++){
         double S_t = MGET(past, past->m-1, d);
         double mean = GET(deltas,d)/(2.0*fdstep*sample_number);
@@ -70,7 +67,6 @@ void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past
         LET(deltas,d) = mean / S_t;
         LET(deltas_std,d) = sqrt(var)/(S_t*sqrt(sample_number));
     }
-    pnl_mat_free(&path);
     pnl_mat_free(&shifted);
     pnl_vect_free(&sum_squares);
 }

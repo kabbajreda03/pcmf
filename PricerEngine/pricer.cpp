@@ -43,23 +43,6 @@ BlackScholesPricer::BlackScholesPricer(nlohmann::json &jsonParams) {
 	OptionParameters option_parameters(option_parser);
 	option = createOption(optionType, option_parameters);
 	mc_pricer = new MonteCarloPricer(nSamples);
-    /*double price = 0.;
-    double priceStdDev = 0.;
-    PnlVect *vect = pnl_vect_create(8);
-    // Set the values
-    LET(vect, 0) = 12.0;
-    LET(vect, 1) = 10.0;
-    LET(vect, 2) = 16.0;
-    LET(vect, 3) = 15.0;
-    LET(vect, 4) = 14.0;
-    LET(vect, 5) = 18.0;
-    LET(vect, 6) = 19.0;
-    LET(vect, 7) = 17.0;
-    //mc_pricer->price_at(currentDate, *bs_model, *option, past, price, priceStdDev);
-    mc_pricer->price(*bs_model,*option, vect, price, priceStdDev);
-    cout<<"Price : "<<price<<endl;
-    cout<<"Price Std : "<<priceStdDev<<endl;
-    */
 }
 
 BlackScholesPricer::~BlackScholesPricer() {
@@ -85,5 +68,5 @@ void BlackScholesPricer::priceAndDeltas(const PnlMat *past, double currentDate, 
     priceStdDev = 0.;
     deltas = pnl_vect_create_from_zero(nAssets);
     deltasStdDev = pnl_vect_create_from_zero(nAssets);
-    mc_pricer->price_at(currentDate, *bs_model, *option, past, price, priceStdDev);
+    mc_pricer->price_at(currentDate, *bs_model, *option, past, price, priceStdDev, deltas, deltasStdDev);
 }

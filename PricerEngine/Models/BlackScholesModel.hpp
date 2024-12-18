@@ -27,7 +27,7 @@ namespace models
 		const PnlMat* const simulate_asset_paths_unsafe(const double from_time, const PnlMat * const past_values);
 		const PnlMat* const simulate_asset_paths_from_start(const PnlVect * const spot);
 
-		void shift_asset(PnlMat *path, PnlMat *shifted, double t,double h, int d);
+		void shift_asset(const PnlMat *path, PnlMat *shifted, double t,double h, int d);
 
         ~BlackScholesModel();
 	private:

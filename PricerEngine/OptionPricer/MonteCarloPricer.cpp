@@ -14,8 +14,9 @@ void MonteCarloPricer::price(UnderlyingModel & underlying_model, Option &option,
 	mco.price(price, confidence_interval);
 }
 
-void MonteCarloPricer::price_at(const double time, models::UnderlyingModel & underlying_model, options::Option &option, const PnlMat * past, double &price, double &confidence_interval) const
+void MonteCarloPricer::price_at(const double time, models::UnderlyingModel & underlying_model, options::Option &option, const PnlMat * past, double &price, double &confidence_interval, PnlVect *deltas, PnlVect *deltas_std) const
 {
 	MonteCarloRoutineAtTimeT mct(underlying_model, option, sample_number, past, time);
 	mct.price(price, confidence_interval);
+	mct.delta(deltas, deltas_std, past, time);
 }

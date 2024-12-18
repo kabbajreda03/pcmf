@@ -18,7 +18,7 @@ protected:
 	{}
 public:
 	void price(double &price, double &confidence_interval) const;
-	void delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past, double t);
+	void delta(PnlVect *deltas, PnlVect *deltas_std, const PnlMat *past, double t);
 };
 
 ///////////////////////////

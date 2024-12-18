@@ -38,7 +38,7 @@ int CoreBlackScholesModelInputParser::get_sample_number() const{
 }
 
 double CoreBlackScholesModelInputParser::get_fdStep() const{
-    int result;
+    double result;
     json.at("RelativeFiniteDifferenceStep").get_to(result);
     return result;
 }
