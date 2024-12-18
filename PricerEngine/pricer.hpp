@@ -4,6 +4,18 @@
 #include <nlohmann/json.hpp>
 #include "pnl/pnl_vector.h"
 #include "pnl/pnl_matrix.h"
+#include "MonteCarloPricer.hpp"
+#include "CoreOptionInputParser.hpp"
+#include "CoreBlackScholesModelInputParser.hpp"
+#include "json_helper.hpp"
+#include "PnlRandomGeneration.hpp"
+#include "BlackScholesModel.hpp"
+#include "OptionParameters.hpp"
+#include "BlackScholesModelParameters.hpp"
+#include "Option.hpp"
+#include "ConditionalBasketOption.hpp"
+#include "ConditionalMaxOption.hpp"
+
 
 class BlackScholesPricer {
 public:
@@ -14,6 +26,10 @@ public:
     double interestRate;
     double fdStep;
     int nSamples;
+    models::BlackScholesModel * bs_model;
+    options::Option * option;
+    pricer::MonteCarloPricer * mc_pricer;
+    
 
     BlackScholesPricer(nlohmann::json &jsonParams);
     ~BlackScholesPricer();

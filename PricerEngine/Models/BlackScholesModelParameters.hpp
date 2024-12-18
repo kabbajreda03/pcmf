@@ -29,7 +29,7 @@ namespace models {
 			spots(nullptr)
 		{};
 
-		BlackScholesModelParameters(const input_parsers::BlackScholesModelInputParser &input_parser, PnlVect * spots_) 
+		BlackScholesModelParameters(const input_parsers::BlackScholesModelInputParser &input_parser) 
 		{
 			underlying_number = input_parser.get_underlying_number();
             cholesky_lines = input_parser.get_cholesky_lines();
@@ -38,7 +38,7 @@ namespace models {
 			sample_number = input_parser.get_sample_number();
 			fdStep = input_parser.get_fdStep();
 			nb_monitoring_dates = monitoringDates->size;
-			spots = pnl_vect_copy(spots_);
+			spots = nullptr;
 		};
     };
 }

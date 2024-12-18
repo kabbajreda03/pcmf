@@ -24,7 +24,7 @@ class Option
     const PnlVect* get_monitoringDates() { return parameters.monitoringDates;};
     int get_nb_monitoringDates() { return parameters.monitoringDates->size;};
 
-    virtual PnlVect* get_payoff(const PnlMat * const underlying_paths) const = 0;
+    virtual PnlVect* get_payoff(const PnlMat * const underlying_paths) = 0;
 
 };
 }

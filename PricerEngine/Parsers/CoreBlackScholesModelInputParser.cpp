@@ -5,7 +5,9 @@ using namespace input_parsers;
 
 int CoreBlackScholesModelInputParser::get_underlying_number() const
 {
-	return 0;
+	PnlMat* result;
+	json.at("VolCholeskyLines").get_to(result);
+	return result->n;
 }
 
 PnlMat* CoreBlackScholesModelInputParser::get_cholesky_lines() const

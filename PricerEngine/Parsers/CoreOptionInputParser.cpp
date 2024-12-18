@@ -5,13 +5,18 @@ using namespace input_parsers;
 
 int CoreOptionInputParser::get_underlying_number() const
 {
-	return 0;
+	PnlMat* result;
+	json.at("VolCholeskyLines").get_to(result);
+	return result->n;
 }
 
 double CoreOptionInputParser::get_maturity() const
 {
-	return 0.0;
+	PnlVect * result;
+	json.at("MathPaymentDates").get_to(result);
+	return GET(result, result->size-1);
 }
+
 
 PnlVect * CoreOptionInputParser::get_monitoringDates() const
 {

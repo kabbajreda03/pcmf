@@ -14,21 +14,19 @@ void MonteCarloRoutine::price(double &price, double &confidence_interval) const
 
 	for (int i = 0; i < option.get_nb_monitoringDates(); ++i) {
     	double x = GET(times_to_monitoring, i);
-        LET(times_to_monitoring, i) = std::exp(-interest_rate * x);
+        LET(times_to_monitoring, i) = std::exp(interest_rate * x);
     }
 	for (unsigned long i = 0; i < sample_number; i++)
 	{
 		const PnlMat * const generated_path = get_generated_path();
-
 		payoffs = option.get_payoff(generated_path);
         double discounted_payoff = pnl_vect_scalar_prod(payoffs, times_to_monitoring);
 		runningSum += discounted_payoff;
 		runningSquaredSum += discounted_payoff * discounted_payoff;
 	}
-
 	price = runningSum / sample_number;
 	double variance = runningSquaredSum / sample_number - price * price;
-	confidence_interval = 1.96 * sqrt(variance / sample_number);
+	confidence_interval = sqrt(variance / sample_number);
 }
 
 void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past, double t){
@@ -42,7 +40,7 @@ void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past
     pnl_vect_minus_vect(times_to_monitoring, monitoring_dates);
     for (int i = 0; i < option.get_nb_monitoringDates(); ++i) {
     	double x = GET(times_to_monitoring, i);
-        LET(times_to_monitoring, i) = std::exp(-interest_rate * x);
+        LET(times_to_monitoring, i) = std::exp(interest_rate * x);
     }
     double diff;
     double fdstep =  derived_model->fdStep();
@@ -69,9 +67,8 @@ void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, PnlMat *past
         double S_t = MGET(past, past->m-1, d);
         double mean = GET(deltas,d)/(2.0*fdstep*sample_number);
         double var = GET(sum_squares,d)/(4.0*fdstep*fdstep*sample_number)-mean*mean;
-        double discount = exp(-derived_model->interest_rate() * (derived_model->get_maturity()-t));
-        LET(deltas,d) = GET(deltas,d) * discount / (2.0* fdstep*sample_number*S_t);
-        LET(deltas_std,d) = sqrt(var)*discount/(S_t*sqrt(sample_number));
+        LET(deltas,d) = mean / S_t;
+        LET(deltas_std,d) = sqrt(var)/(S_t*sqrt(sample_number));
     }
     pnl_mat_free(&path);
     pnl_mat_free(&shifted);

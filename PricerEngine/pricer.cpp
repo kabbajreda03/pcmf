@@ -2,6 +2,29 @@
 #include "json_reader.hpp"
 #include "pricer.hpp"
 
+
+using namespace std;
+using namespace input_parsers;
+using namespace models;
+using namespace options;
+using namespace generators;
+using namespace pricer;
+
+Option * createOption(string optionType, OptionParameters &param) {
+
+    if (optionType == "ConditionalBasket") {
+        return new ConditionalBasketOption(param);
+    } 
+    else if (optionType == "ConditionalMax") {
+        
+        return new ConditionalMaxOption(param);
+    }
+    else {
+        cerr << "Unknown option type: " << optionType << endl;
+        exit(1);
+    }
+}
+
 BlackScholesPricer::BlackScholesPricer(nlohmann::json &jsonParams) {
     jsonParams.at("VolCholeskyLines").get_to(volatility);
     jsonParams.at("MathPaymentDates").get_to(paymentDates);
@@ -9,7 +32,34 @@ BlackScholesPricer::BlackScholesPricer(nlohmann::json &jsonParams) {
     jsonParams.at("DomesticInterestRate").get_to(interestRate);
     jsonParams.at("RelativeFiniteDifferenceStep").get_to(fdStep);
     jsonParams.at("SampleNb").get_to(nSamples);
+    std::string optionType;
+    jsonParams.at("PayoffType").get_to(optionType);
     nAssets = volatility->n;
+    CoreOptionInputParser option_parser(jsonParams);
+	CoreBlackScholesModelInputParser model_parser(jsonParams);
+    BlackScholesModelParameters bs_param(model_parser);
+	PnlRandomGeneration pnl_generator;
+	bs_model = new BlackScholesModel(bs_param, pnl_generator);
+	OptionParameters option_parameters(option_parser);
+	option = createOption(optionType, option_parameters);
+	mc_pricer = new MonteCarloPricer(nSamples);
+    /*double price = 0.;
+    double priceStdDev = 0.;
+    PnlVect *vect = pnl_vect_create(8);
+    // Set the values
+    LET(vect, 0) = 12.0;
+    LET(vect, 1) = 10.0;
+    LET(vect, 2) = 16.0;
+    LET(vect, 3) = 15.0;
+    LET(vect, 4) = 14.0;
+    LET(vect, 5) = 18.0;
+    LET(vect, 6) = 19.0;
+    LET(vect, 7) = 17.0;
+    //mc_pricer->price_at(currentDate, *bs_model, *option, past, price, priceStdDev);
+    mc_pricer->price(*bs_model,*option, vect, price, priceStdDev);
+    cout<<"Price : "<<price<<endl;
+    cout<<"Price Std : "<<priceStdDev<<endl;
+    */
 }
 
 BlackScholesPricer::~BlackScholesPricer() {
@@ -35,5 +85,5 @@ void BlackScholesPricer::priceAndDeltas(const PnlMat *past, double currentDate, 
     priceStdDev = 0.;
     deltas = pnl_vect_create_from_zero(nAssets);
     deltasStdDev = pnl_vect_create_from_zero(nAssets);
-    /* A compléter */
+    mc_pricer->price_at(currentDate, *bs_model, *option, past, price, priceStdDev);
 }

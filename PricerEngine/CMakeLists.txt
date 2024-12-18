@@ -115,6 +115,11 @@ target_link_libraries(pricing_server
     ${_PROTOBUF_LIBPROTOBUF}
     ${PNL_LIBRARIES}
     nlohmann_json::nlohmann_json
+    models          
+    parsers
+    random_generation
+    options
+    optionPricer
 )
 pnl_add_postbuild(pricing_server)
 
