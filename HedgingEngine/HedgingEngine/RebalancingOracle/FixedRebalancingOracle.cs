@@ -17,8 +17,13 @@ namespace HedgingEngine.RebalancingOracle
 
         public bool ShouldRebalance()
         {
+            if(_dayCount == Period)
+            {
+                _dayCount = 1;
+                return true;
+            }
             _dayCount++;
-            return _dayCount % Period == 0;
+            return false;
         }
     }
 }
