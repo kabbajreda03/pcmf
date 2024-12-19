@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HedgingEngine", "HedgingEngine\HedgingEngine.csproj", "{A197EFD0-C30B-45A7-84EA-6CD1F334BF84}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A197EFD0-C30B-45A7-84EA-6CD1F334BF84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A197EFD0-C30B-45A7-84EA-6CD1F334BF84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A197EFD0-C30B-45A7-84EA-6CD1F334BF84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A197EFD0-C30B-45A7-84EA-6CD1F334BF84}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {97BFCCC0-63E9-40EB-AB3E-EEA2F8DA5A69}
+	EndGlobalSection
+EndGlobal
