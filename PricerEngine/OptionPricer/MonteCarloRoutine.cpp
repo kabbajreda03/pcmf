@@ -9,6 +9,7 @@ void MonteCarloRoutine::price(double &price, double &confidence_interval) const
     PnlVect* payoffs;
 	double interest_rate = underlying_model.interest_rate();
     const PnlVect* monitoring_dates = option.get_monitoringDates();
+    pnl_vect_print(monitoring_dates);
 	PnlVect* times_to_monitoring = pnl_vect_create_from_scalar(option.get_nb_monitoringDates(), t);
 	pnl_vect_minus_vect(times_to_monitoring, monitoring_dates);
 
@@ -26,7 +27,7 @@ void MonteCarloRoutine::price(double &price, double &confidence_interval) const
 	}
 	price = runningSum / sample_number;
 	double variance = runningSquaredSum / sample_number - price * price;
-	confidence_interval = sqrt(variance / sample_number);
+	confidence_interval = sqrt(fabs(variance) / sample_number);
 }
 
 void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, const PnlMat *past, double t){
@@ -63,7 +64,7 @@ void MonteCarloRoutine::delta(PnlVect *deltas, PnlVect *deltas_std, const PnlMat
     for(int d = 0; d<derived_model->underlying_number();d++){
         double S_t = MGET(past, past->m-1, d);
         double mean = GET(deltas,d)/(2.0*fdstep*sample_number);
-        double var = GET(sum_squares,d)/(4.0*fdstep*fdstep*sample_number)-mean*mean;
+        double var = fabs(GET(sum_squares,d)/(4.0*fdstep*fdstep*sample_number)-mean*mean);
         LET(deltas,d) = mean / S_t;
         LET(deltas_std,d) = sqrt(var)/(S_t*sqrt(sample_number));
     }

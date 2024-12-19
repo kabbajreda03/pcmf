@@ -16,7 +16,6 @@ namespace HedgingEngine.Hedging
         private readonly TestParameters _params;
         private PortfolioState _portfolio;
         private readonly FixedRebalancingOracle _oracle;
-        private readonly List<DataFeed> _pastData;
         private readonly List<DataFeed> _monitoringData;
         private readonly MathDateConverter _dateConverter;
         private readonly List<OutputData> _results;
@@ -28,7 +27,6 @@ namespace HedgingEngine.Hedging
             _pricer = new PricerClient();
             _params = parameters;
             _oracle = new FixedRebalancingOracle(_params.RebalancingOracleDescription.Period);
-            _pastData = new List<DataFeed>();
             _monitoringData = new List<DataFeed>();
             _dateConverter = new MathDateConverter(_params.NumberOfDaysInOneYear);
             _results = new List<OutputData>();
@@ -58,7 +56,6 @@ namespace HedgingEngine.Hedging
         private void Initialize(DataFeed initialFeed)
         {
             _initialFeed = initialFeed;
-            _pastData.Add(initialFeed);
         }
 
         private void InitialHedge()
@@ -104,12 +101,7 @@ namespace HedgingEngine.Hedging
 
         private void ProcessNewDate(DataFeed feed)
         {
-            if (_initialFeed == null)
-            {
-                throw new InvalidOperationException("HedgingEngine must be initialized first");
-            }
-
-            if (feed.Date == _initialFeed.Date)
+            if (_initialFeed == null || feed.Date == _initialFeed.Date)
             {
                 return;
             }
@@ -125,11 +117,17 @@ namespace HedgingEngine.Hedging
                 feed.Date
             );
 
-            DataFeed[] past = BuildPastArray(feed);
+            DataFeed[] past = BuildPastArray(feed, isMonitoringDate);
             _pricer.ComputePriceAndDeltas(past, isMonitoringDate, time);
-            double value = _portfolio.CalculatePortfolioValue(feed.SpotList, _domesticRate, time);
+
             if (_oracle.ShouldRebalance())
             {
+                double portfolioTime = _dateConverter.ConvertToMathDistance(
+                    _results.Last().Date,
+                    feed.Date
+                );
+                double value = _portfolio.CalculatePortfolioValue(feed.SpotList, _domesticRate, portfolioTime);
+
                 var newDeltas = new Dictionary<string, double>();
                 var assets = _initialFeed.SpotList.Keys.ToList();
                 for (int i = 0; i < _pricer.Deltas.Length; i++)
@@ -138,33 +136,28 @@ namespace HedgingEngine.Hedging
                 }
 
                 _portfolio.UpdateComposition(newDeltas, feed.SpotList, value);
-            }
 
-            // Record result for this date
-            var output = new OutputData
-            {
-                Date = feed.Date,
-                Value = value,
-                Deltas = [.. _pricer.Deltas],
-                DeltasStdDev = [.. _pricer.DeltasStdDev],
-                Price = _pricer.Price,
-                PriceStdDev = _pricer.PriceStdDev
-            };
-            _results.Add(output);
-
-            if (isMonitoringDate)
-            {
-                _pastData.Add(feed);
+                // Record result only when rebalancing
+                var output = new OutputData
+                {
+                    Date = feed.Date,
+                    Value = value,
+                    Deltas = [.. _pricer.Deltas],
+                    DeltasStdDev = [.. _pricer.DeltasStdDev],
+                    Price = _pricer.Price,
+                    PriceStdDev = _pricer.PriceStdDev
+                };
+                _results.Add(output);
             }
         }
 
-        private DataFeed[] BuildPastArray(DataFeed currentFeed)
+        private DataFeed[] BuildPastArray(DataFeed currentFeed, bool isMonitoringDate)
         {
             var result = new List<DataFeed>();
             result.Add(_initialFeed);
             result.AddRange(_monitoringData);
 
-            if (!_monitoringData.Contains(currentFeed))
+            if (!isMonitoringDate)
             {
                 result.Add(currentFeed);
             }

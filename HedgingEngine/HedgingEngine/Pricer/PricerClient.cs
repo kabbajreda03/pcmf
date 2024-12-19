@@ -67,7 +67,6 @@ namespace HedgingEngine.Pricer
                 var line = new PastLines();
                 foreach (double price in pastLine.SpotList.Values)
                 {
-                    Console.WriteLine("Price : " + price);
                     line.Value.Add(price);
                 }
                 input.Past.Add(line);

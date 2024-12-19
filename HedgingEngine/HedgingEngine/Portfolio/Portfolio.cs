@@ -30,7 +30,7 @@ namespace HedgingEngine.Portfolio
 
         public double GetDiscountedCashValue(double rate, double time)
         {
-            return Cash * Math.Exp(-rate * time);
+            return Cash * Math.Exp(rate * time);
         }
 
         public double CalculatePortfolioValue(Dictionary<string, double> spotPrices, double rate, double time)

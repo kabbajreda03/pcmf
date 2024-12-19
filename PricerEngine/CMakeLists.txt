@@ -123,11 +123,5 @@ target_link_libraries(pricing_server
 )
 pnl_add_postbuild(pricing_server)
 
-add_executable(test_json_reader json_reader.cpp test_json_reader.cpp)
-target_link_libraries(test_json_reader
-    ${PNL_LIBRARIES}
-    nlohmann_json::nlohmann_json
-)
-pnl_add_postbuild(test_json_reader)
 
 

@@ -10,7 +10,7 @@ class Option
 {
     
   private:
-    OptionParameters& parameters;
+    OptionParameters parameters;
 
   public: 
 

@@ -58,7 +58,9 @@ public:
             return Status(grpc::StatusCode::INVALID_ARGUMENT, "Cannot read past");
         }
         pnl_mat_print(past);
+
         pricer.priceAndDeltas(past, currentDate, isMonitoringDate, price, priceStdDev, delta, deltaStdDev);
+        
         output->set_price(price);
         output->set_pricestddev(priceStdDev);
         for (int i = 0; i < delta->size; i++) {
@@ -100,6 +102,7 @@ void RunServer(nlohmann::json &jsonParams) {
     // Wait for the server to shutdown. Note that some other thread must be
     // responsible for shutting down the server for this call to ever return.
     server->Wait();
+
 }
 
 int main(int argc, char **argv) {

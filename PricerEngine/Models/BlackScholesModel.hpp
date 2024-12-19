@@ -5,6 +5,7 @@
 #include "BlackScholesModelInputParser.hpp"
 #include "BlackScholesModelParameters.hpp"
 #include "BlackScholesHelper.hpp"
+#include "PnlRandomGeneration.hpp"
 
 namespace models
 {
@@ -13,7 +14,7 @@ namespace models
 	{
 
 	public:
-        BlackScholesModel(BlackScholesModelParameters& params, const generators::RandomGeneration & rng);
+        BlackScholesModel(BlackScholesModelParameters& params);
         int underlying_number() {return parameters.underlying_number;};
         PnlMat* cholesky_lines() {return parameters.cholesky_lines;};
         double interest_rate() {return parameters.interest_rate;};
@@ -32,8 +33,8 @@ namespace models
         ~BlackScholesModel();
 	private:
 
-        BlackScholesModelParameters& parameters;
-		const generators::RandomGeneration &random_generator_;
+        BlackScholesModelParameters parameters;
+		const generators::PnlRandomGeneration * random_generator_;
 
 		double final_simulation_date_;
 		double timestep_;

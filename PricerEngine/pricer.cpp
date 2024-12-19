@@ -1,6 +1,7 @@
 #include <iostream>
 #include "json_reader.hpp"
 #include "pricer.hpp"
+#include <memory>
 
 
 using namespace std;
@@ -38,8 +39,7 @@ BlackScholesPricer::BlackScholesPricer(nlohmann::json &jsonParams) {
     CoreOptionInputParser option_parser(jsonParams);
 	CoreBlackScholesModelInputParser model_parser(jsonParams);
     BlackScholesModelParameters bs_param(model_parser);
-	PnlRandomGeneration pnl_generator;
-	bs_model = new BlackScholesModel(bs_param, pnl_generator);
+	bs_model = new BlackScholesModel(bs_param);
 	OptionParameters option_parameters(option_parser);
 	option = createOption(optionType, option_parameters);
 	mc_pricer = new MonteCarloPricer(nSamples);
@@ -49,6 +49,9 @@ BlackScholesPricer::~BlackScholesPricer() {
     pnl_vect_free(&paymentDates);
     pnl_vect_free(&strikes);
     pnl_mat_free(&volatility);
+    delete bs_model;
+    delete option;
+    delete mc_pricer;
 }
 
 void BlackScholesPricer::print() {

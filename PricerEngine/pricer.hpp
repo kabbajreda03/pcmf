@@ -16,6 +16,9 @@
 #include "ConditionalBasketOption.hpp"
 #include "ConditionalMaxOption.hpp"
 
+using namespace models;
+using namespace options;
+using namespace pricer;
 
 class BlackScholesPricer {
 public:
@@ -26,9 +29,9 @@ public:
     double interestRate;
     double fdStep;
     int nSamples;
-    models::BlackScholesModel * bs_model;
-    options::Option * option;
-    pricer::MonteCarloPricer * mc_pricer;
+    BlackScholesModel * bs_model;
+    Option * option;
+    MonteCarloPricer * mc_pricer;
     
 
     BlackScholesPricer(nlohmann::json &jsonParams);

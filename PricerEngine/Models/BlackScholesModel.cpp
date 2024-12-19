@@ -9,11 +9,11 @@ using namespace generators;
 using namespace models;
 
 
-BlackScholesModel::BlackScholesModel(BlackScholesModelParameters& params, const RandomGeneration & rng) : 
-random_generator_(rng),
+BlackScholesModel::BlackScholesModel(BlackScholesModelParameters& params) :
 parameters(params)
 {	
 	int monitoring_times = nb_monitoring_dates();
+	random_generator_ = new PnlRandomGeneration();
 	final_simulation_date_ = GET(monitoring_dates(),monitoring_times-1);
 	timestep_ = static_cast<double> (final_simulation_date_)/ monitoring_times;
 	interest_rate_ = interest_rate();
@@ -28,13 +28,18 @@ const PnlMat* const BlackScholesModel::simulate_asset_paths_unsafe(const double 
 {
 	pnl_mat_set_subblock(generated_asset_paths_, past_values, 0, 0);
 	int number_of_values = past_values->m;
-	double timespan_to_monitoring = (number_of_values - 1) * timestep_ - from_time;
+	double timespan_to_monitoring;
+	if (number_of_values > 1)
+		timespan_to_monitoring = GET(monitoring_dates(), number_of_values - 2) - from_time;
+	else
+		timespan_to_monitoring = 0.0;
 	bool is_at_monitoring_time = timespan_to_monitoring < TIME_PRECISION;	
 	if (!is_at_monitoring_time)
 	{
 		add_one_simulation_to_generated_asset_paths_unsafe(number_of_values-1, timespan_to_monitoring, past_values);
 	}
 	fill_remainder_of_generated_asset_paths(number_of_values);
+	
 	return generated_asset_paths_;
 }
 
@@ -51,7 +56,7 @@ const PnlMat* const BlackScholesModel::simulate_asset_paths_from_start(const Pnl
 
 void BlackScholesModel::add_one_simulation_to_generated_asset_paths_unsafe(int at_line, double timelength, const PnlMat * const past_values)
 {
-	random_generator_.get_one_gaussian_sample(gaussian_vector_for_simulation_);
+	random_generator_->get_one_gaussian_sample(gaussian_vector_for_simulation_);
 	double sqrt_timelength = sqrt(timelength);
 	for (int i = 0; i < underlying_number(); i++)
 	{
@@ -67,8 +72,8 @@ void BlackScholesModel::fill_remainder_of_generated_asset_paths(int from_line)
 	int last_line = generated_asset_paths_->m;
 	double timestep;
 	for (int line = from_line; line < last_line; line++)
-	{
-		random_generator_.get_one_gaussian_sample(gaussian_vector_for_simulation_);
+	{	
+		random_generator_->get_one_gaussian_sample(gaussian_vector_for_simulation_);
 		for (int i = 0; i < underlying_number(); i++)
 		{
 			if(line==1)
@@ -89,13 +94,13 @@ void BlackScholesModel::shift_asset(const PnlMat *path, PnlMat *shifted, double 
 	int idx = 0;
 	PnlVect * md = monitoring_dates();
 	for(int i =0; i<nb_monitoring_dates(); i++){
-		if(t<=GET(md,i)){
+		if(t<GET(md,i)){
 			idx = i;
 			break;
 		}
 	}
 
-    for(int i=idx; i<shifted->m; i++){
+    for(int i=idx+1; i<shifted->m; i++){
         MLET(shifted, i, d) = MGET(shifted, i, d)*(1+h);
     }
 	

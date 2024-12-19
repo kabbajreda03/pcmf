@@ -1,6 +1,5 @@
 #include "PnlRandomGeneration.hpp"
 #include <time.h>
-
 using namespace generators;
 
 PnlRandomGeneration::PnlRandomGeneration(){
